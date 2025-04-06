@@ -1,0 +1,43 @@
+
+
+.drop_zone{
+    margin-top: 20px;
+    padding: 20px;
+    border: 2px dashed var(--primary);
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: .3s linear;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.drop_zone i{
+    color: var(--primary);
+    width: 45px;
+    height: 45px;
+    border: 2px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 20px;
+}
+
+.drop_image{
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    justify-self: center;
+    align-self: center;
+    margin-top: 10px;
+}
+
+.drop_zone:hover {
+    background-color: var(--primary-10);
+}
+
