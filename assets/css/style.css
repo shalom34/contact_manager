@@ -33,6 +33,46 @@ body{
 
 }
 
+.dialog_cont{
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgb(0, 0, 0, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.dialog_cont .dialog{
+    width: 30%;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--milkywhite);
+    border-radius: 15px;
+
+}
+
+.dialog_cont .dialog .buttons{
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    align-items: center;
+}
+
+.dialog_cont .dialog .buttons button{
+
+    background: transparent;
+    border: none;
+    color: var(--primary);
+    outline: none;
+    min-width: 80px;
+}
+
 
 /*starting my contact styles*/
 
@@ -126,6 +166,7 @@ button.secondary{
     display: none;
     flex-direction: column;
     gap: 20px;
+    min-height: 100%;
 }
 
 .main_container .info_container .contact_infos.active{
@@ -287,6 +328,16 @@ button.secondary{
    justify-content: center;
 }
 
+.main_container .info_container .contact_infos .footer button{
+ background: transparent;
+ color: red;
+ border: none;
+ outline: none;
+ display: flex;
+ align-items: center;
+ gap: 20px;
+}
+
 
 .main_container .container .close_div{
     display: none;
@@ -298,6 +349,12 @@ button.secondary{
     justify-content: space-between;
     gap: 15px;
     align-items: start;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 59%;
+    padding: 15px;
+    background: var(--milkywhite);
 }
 
 .main_container .container .top_bar h3{
@@ -327,6 +384,7 @@ button.secondary{
     display: flex;
     flex-direction: column;
     gap: 5px;
+    justify-self: flex-end;
 }
 
 .main_container .container .top_bar .search_box{
@@ -351,6 +409,10 @@ button.secondary{
 .main_container .container .top_bar .right .oval_btn{
     align-self: end;
     transition: transform 0.3s ease;
+}
+
+.main_container .container .top_bar .right .search_btn{
+    display: none;
 }
 
 .main_container .container .top_bar .oval_btn.rotate{
@@ -417,6 +479,7 @@ button.secondary{
 .container .table_container{
     width: 100%;
     display: flex;
+    margin-top: 30px;
 }
 .container .table_container table{
     width: 100%;
@@ -445,6 +508,7 @@ button.secondary{
     padding: 20px 0px 0px 0px;
     color: var(--black-20);
     text-transform: uppercase;
+    cursor: default;
 }
 .container .table_container table tbody tr.header td{
     font-size: 18px;
@@ -1257,6 +1321,9 @@ body.n-scroll{
 .main_container{
     width: 100%;
 }
+.main_container .container .top_bar{
+width: 100%;
+}
 .main_container .info_container{
     width: 100%;
     right: 0;
@@ -1294,9 +1361,34 @@ body.n-scroll{
     width: 50%;
 }
 
+ .dialog_cont .dialog{
+        width: 80%;
+    }
+
 }
 
 @media (max-width: 760px) {
+
+.main_container .container .top_bar{
+width: 100%;
+}
+
+
+
+.main_container .container .top_bar .right{
+width: 100%;
+}
+
+.main_container .container .top_bar .search_box{
+display: none;
+}
+.main_container .container .top_bar .search_box .search_input{
+    width: calc(100vw - 85px);
+}
+.main_container .container .top_bar .right .search_btn{
+display: block;
+}
+
 
 .container .table_container table tbody tr td.infos .important_infos{
     display: flex;
@@ -1311,7 +1403,6 @@ body.n-scroll{
 }
 
 }
-
 
 
 

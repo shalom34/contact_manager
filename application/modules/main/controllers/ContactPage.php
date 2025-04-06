@@ -20,7 +20,7 @@ class ContactPage extends CI_Controller {
 
   // inserts new contact to the database
 
-  function insert_contact(){
+  function insert_or_update_contact(){
 
     $this->validate();
 
@@ -75,12 +75,20 @@ class ContactPage extends CI_Controller {
         'PHOTO' => $photo
     );
 
-    // insert them in the table
+    if (!isset($_POST['contact_id'])) {
+      // insert them in the table
     $this->Model->create('contacts', $contact_data);
+    echo json_encode(['status' => true]);  
+    }else{
+        // update them in the table
+    $contact_id= $_POST['contact_id'];
+    $this->Model->update('contacts',array('CONTACT_ID'=>$contact_id),$contact_data);
     echo json_encode(['status' => true]);
+    }
+    
       
     } catch (Exception $e) {
-      echo json_encode(['status' => true, 'message'=>'An error has occured while inserting data.']);
+      echo json_encode(['status' => false, 'message'=>'An error has occured while inserting data.']);
       exit();
     }
     
@@ -97,9 +105,18 @@ class ContactPage extends CI_Controller {
       'status' => true
     );
 
+    $where_cond='';
+
+    // verify if the user is update an existing number
+
+    if (isset($_POST['contact_id'])) {
+      $where_cond =  ' AND CONTACT_ID != '.$_POST['contact_id'].' ';
+
+    }
+
     // validation of a phone number
     $phone=$this->input->post('phone');
-    $phone_data = $this->Model->getRequeteOne('SELECT CONTACT_ID FROM contacts WHERE  PHONE="'.$phone.'"');
+    $phone_data = $this->Model->getRequeteOne('SELECT CONTACT_ID FROM contacts WHERE  PHONE="'.$phone.'"'.$where_cond);
 
     if (!empty($phone_data)) {
    
@@ -112,7 +129,7 @@ class ContactPage extends CI_Controller {
 
     // validation of an email
     $email=$this->input->post('email');
-    $email_data = $this->Model->getRequeteOne('SELECT CONTACT_ID FROM contacts WHERE  EMAIL="'.$email.'"');
+    $email_data = $this->Model->getRequeteOne('SELECT CONTACT_ID FROM contacts WHERE  EMAIL="'.$email.'"'.$where_cond);
 
     if (!empty($email_data)) {
    
@@ -144,31 +161,31 @@ function get_contacts() {
 
     foreach ($contacts as $contact) {
 
-        $profile_tag='<img class="icon" src="'.base_url().$contact['PHOTO'].'">';
+        $profile_tag='<img class="icon" id="photo_img" src="'.base_url().$contact['PHOTO'].'">';
 
         if ($contact['PHOTO'] == null || $contact['PHOTO'] == "" || !file_exists('uploads/profiles/' . basename($contact['PHOTO']))) {
 
             $firstLetters = substr($contact['FIRST_NAME'], 0, 1).substr($contact['LAST_NAME'], 0, 1);
-             $profile_tag='<div class="icon">'.$firstLetters.'</div>';
+             $profile_tag='<div id="photo_letters" class="icon">'.$firstLetters.'</div>';
             }
 
         $table_list .= '<tr id="row'.$contact['CONTACT_ID'].'" onclick="show_contact_infos('.$contact['CONTACT_ID'].')">
             <td class="infos">'
                 .$profile_tag.
                 '<div class="important_infos"> 
-                <div class="identity">
+                <div class="identity" id="fullname">
                     ' . $contact["FIRST_NAME"] . " " . $contact["LAST_NAME"] . '
-                    <span>' . $contact["DESCRIPTION"] . '</span>
+                    <span id="description">' . $contact["DESCRIPTION"] . '</span>
                 </div>
                  <div class="identity_contacts">
-                    <span>' . $contact["PHONE"] . '</span>
+                    <span id="phone">' . $contact["PHONE"] . '</span>
                 </div>
                 </div>
             </td>
             <td class="options">
                 <button><i class="fas fa-phone"></i></button>
                 <button><i class="fas fa-star"></i></button>
-                <button><i class="fas fa-ellipsis-h"></i></button>
+                <button onclick="show_contact_infos('.$contact['CONTACT_ID'].')"><i class="fas fa-ellipsis-h"></i></button>
             </td>
         </tr>';
     }
@@ -207,13 +224,17 @@ $socials_json = $contact_data['SOCIALS'];
 
  $socials_html='';
 
+$fb='';
+$wp='';
+$insta='';
+$x='';
+
 if ($socials_json!=null || $socials_json!='') {
    
    // Decode JSON into an associative array
 $socials_data = json_decode($socials_json, true); 
 
 if ($socials_data!=null || $socials_data!='') {
-
 
 foreach ($socials_data as $social) {
 
@@ -224,6 +245,7 @@ foreach ($socials_data as $social) {
         <label>'.$social['fb'].'</label>
 
         </div>';
+    $fb=$social['fb'];
     }
 
     if ($social['wp']!=null || $social['wp']!='') {
@@ -232,6 +254,8 @@ foreach ($socials_data as $social) {
         <label>'.$social['wp'].'</label>
 
         </div>';
+    $wp=$social['wp'];
+
     }
 
     if ($social['insta']!=null || $social['insta']!='') {
@@ -240,6 +264,8 @@ foreach ($socials_data as $social) {
         <label>'.$social['insta'].'</label>
 
         </div>';
+    $insta=$social['insta'];
+
     }
 
      if ($social['x']!=null || $social['x']!='') {
@@ -248,6 +274,8 @@ foreach ($socials_data as $social) {
         <label>'.$social['x'].'</label>
 
         </div>';
+    $x=$social['x'];
+
     }
 
     }
@@ -256,12 +284,19 @@ foreach ($socials_data as $social) {
 }
 
     echo json_encode([
+        'id' => $id,
+        'first_name' => $contact_data['FIRST_NAME'],
+        'last_name' => $contact_data['LAST_NAME'],
         'fullname' => $fullname,
         'description' => $description,
         'phone' => $phone,
         'email' => $email,
         'first_letters' => $firstLetters,
         'img_path' => $img_path,
+        'fb' => $fb,
+        'wp' => $wp,
+        'insta' => $insta,
+        'x' => $x,
         'socials_html' => $socials_html
 
     ]);
@@ -284,6 +319,17 @@ function upload_document($file_name, $field_name){
         
         return $pathfile;
     }
+
+function delete_contact($id){
+
+     $results=$this->Model->delete('contacts', ['CONTACT_ID' => $id]);
+     if ($results) {
+         echo json_encode(['status'=>true]);
+     }else{
+         echo json_encode(['status'=>false]);
+
+     }
+}
 
 }
 ?>

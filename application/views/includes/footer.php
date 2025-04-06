@@ -1,20 +1,22 @@
 
     <div id="scrollToTopButton" class="floating-button">
     <i class="fas fa-arrow-up"></i>
-    </div>  
+    </div>
 
-    <!-- jQuery -->
-        <script src="<?=base_url()?>assets/js/jquery-3.7.1.min.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
 
-        <!-- Feather Icon JS -->
-    <script src="<?=base_url()?>assets/js/feather.min.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
+    <div class="dialog_cont">
+        <div class="dialog">
+            <h4>Delete contact</h4>
+            <p>Do you really want to delete this contact?
+            Mind you, you will never be able to retrieve it.</p>
 
-    <!-- Slimscroll JS -->
-    <script src="<?=base_url()?>assets/js/jquery.slimscroll.min.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
+            <div class="buttons">
+                <button id="cancel">Cancel</button>
+                <button id="delete">Delete</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Datatable JS -->
-    <script src="<?=base_url()?>assets/js/jquery.dataTables.min.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
-    <script src="<?=base_url()?>assets/js/dataTables.bootstrap5.min.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
 
     <!-- Bootstrap Core JS -->
     <script src="<?=base_url()?>assets/js/bootstrap.bundle.min.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
@@ -32,18 +34,7 @@
     <!-- Bootstrap Tagsinput JS -->
     <script src="<?=base_url()?>assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
 
-    <!-- Sweetalert 2 -->
-    <script src="<?=base_url()?>assets/plugins/sweetalert/sweetalert2.all.min.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
-    <script src="<?=base_url()?>assets/plugins/sweetalert/sweetalerts.min.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
 
-    <!-- Custom JS -->
-    
-  
-    <script src="<?=base_url()?>assets/js/script.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
-  
-  <!--<script src="<?=base_url()?>assets/js/theme-settings.js"></script>-->
-  
-  <script src="<?=base_url()?>assets/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="d2ea1eb9a52065b6e33f27f8-|49" defer=""></script>
   <script src="<?=base_url()?>assets/js/jquery-3.7.1.min.js"></script>
 </body>
 
@@ -56,6 +47,7 @@
 let currentLetter = 'A'; // Start with the first letter
 let loading = false; // Prevent duplicate calls while loading
 let selectedFile = null; // Store the valid file globally
+let search_value='';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -67,11 +59,8 @@ window.addEventListener('scroll', () => {
     }
 });
 get_data();
-add_events_on_searchtypes();
 
  });
-
-
 
 function modal(modal_id, type) {
     var modal= document.querySelector('#'+modal_id);
@@ -79,18 +68,17 @@ function modal(modal_id, type) {
      var floatingbtn= document.querySelector(".floating-button");
     var body= document.querySelector("body");
 
-    reinitialize_modal(modal_id);
-
     if (type==='hide') {
         modal.classList.remove("show");
         body.classList.remove("n-scroll");
         wrapper.classList.remove("blur");
         floatingbtn.classList.remove("blur");
+        reinitialize_modal(modal_id);
     }else{
       modal.classList.add("show");
         body.classList.add("n-scroll");
         wrapper.classList.add("blur");
-        floatingbtn.classList.add("blur");  
+        floatingbtn.classList.add("blur");
     }
 }
 
@@ -103,22 +91,38 @@ function show(){
 
 // shows a box based on the box class
 function show_box(button, box_class) {
-    const chatbox = document.querySelector("."+box_class);
-   
-      chatbox.classList.toggle('close');
+    const search_box = document.querySelector("."+box_class);
+
+      search_box.classList.toggle('close');
       button.classList.toggle('rotate');
       button.classList.toggle('fa-xmark');
     button.classList.toggle('fa-search');
-    select_searchtype('none');
+
+
+        const topbar= document.querySelector('.top_bar');
+
+        if (search_box.classList.contains('close')) {
+
+        topbar.style.justifyContent='flex-end';
+        topbar.querySelector('.search_box').style.display="flex";   
+        topbar.querySelector('.title').style.display="none";   
+        topbar.querySelector('#btn_new').style.display="none";   
+        }else{
+        topbar.style.justifyContent='space-between';
+        topbar.querySelector('.search_box').style.display="none";   
+        topbar.querySelector('.title').style.display="flex";   
+            topbar.querySelector('#btn_new').style.display="block";
+        }
+ 
 }
 
 
 // triggers file picker to pick the image
 
 function show_file_picker(event) {
-    const fileInput = document.getElementById('file_input'); 
-    const imageDisplay = document.getElementById('logoDisplay'); 
-    const btn_remove_img = document.getElementById('btn_remove_img'); 
+    const fileInput = document.getElementById('file_input');
+    const imageDisplay = document.getElementById('logoDisplay');
+    const btn_remove_img = document.getElementById('btn_remove_img');
 
 
     // Prevent the default button behavior
@@ -145,7 +149,7 @@ function show_file_picker(event) {
 
                     // Store the file globally for future use
                     selectedFile = file;
-                    
+
                 };
 
                 reader.readAsDataURL(file);
@@ -156,7 +160,7 @@ function show_file_picker(event) {
                 // Reset the file input for invalid file selection
                 fileInput.value = '';
 
-               
+
             }
         }
     });
@@ -166,15 +170,15 @@ function show_file_picker(event) {
 // removes picked image
 
 function remove_image() {
-   const fileInput = document.getElementById('file_input'); 
-    const imageDisplay = document.getElementById('logoDisplay'); 
+   const fileInput = document.getElementById('file_input');
+    const imageDisplay = document.getElementById('logoDisplay');
     const btn_remove_img = document.getElementById('btn_remove_img');
 
     fileInput.value='';
     imageDisplay.src='<?=base_url()?>assets/icons/newimage.png';
     imageDisplay.classList.remove('active');
     selectedFile=null;
-    btn_remove_img.style.display='none'; 
+    btn_remove_img.style.display='none';
 }
 
 // empties an input when clicked on the x icon of the input
@@ -186,55 +190,6 @@ function empty_input(input_id) {
 
 }
 
-// adds events on a selected searchtype
-function add_events_on_searchtypes() {
-
-    const search_types = document.querySelector('.search_types');
-      const buttons = search_types.querySelectorAll('button');
-
-      buttons.forEach(button => {
-        button.addEventListener('click', function () {
-
-        select_searchtype(button.value);
-
-      });
-  });
-}
-
-// selects a clicked searchtype
-function select_searchtype(button_value) {
-
-    const search_types = document.querySelector('.search_types');
-      const buttons = search_types.querySelectorAll('button');
-
-      buttons.forEach(button => {
-
-        if (button_value==='none') {
-            search_types.querySelector('.all').classList.remove('selected');
-            search_types.querySelector('.all').classList.add('selected');
-            button.classList.remove('selected');
-        }else{
-
-        if (button.value===button_value) {
-        button.classList.remove('selected');
-        button.classList.add('selected');
-
-        if (button_value!=='0') {
-            search_types.querySelector('.all').classList.remove('selected');
-        }
-
-        }else{
-
-            if (button_value==='0') {
-                button.classList.remove('selected');
-            }       
-
-        }
-      }
-       
-
-  });
-}
 
 // sends data from the modal to the controller
 
@@ -244,7 +199,7 @@ function send_data(modal_id) {
     if (!hasEmpty(form.id)) {
       validate_and_send(modalElement);
     }
-    
+
 }
 
 // Verifies if the modal form has any empty required field using the id of its form
@@ -260,7 +215,7 @@ function hasEmpty(idform) {
                 if (element.tagName === 'INPUT') {
                     let value = element.value;
                     if (value === '') {
-                        
+
                         const errors = form.querySelectorAll('.error');
                         errors.forEach(error => {
                             let elementId = element.id;
@@ -289,7 +244,7 @@ function hasEmpty(idform) {
                 if (element.tagName === 'SELECT') {
                     let index = element.selectedIndex;
                     if (index === 0) {
-                        
+
                         const errors = form.querySelectorAll('.error');
                         errors.forEach(error => {
                             let elementId = element.id;
@@ -323,10 +278,19 @@ function validate_and_send(modalElement) {
 
     $('#add_btn').attr("disabled", true);
 
+    let contact_id= modalElement.querySelector('#add_btn').value;
+
+
     var url = "<?php echo base_url('contacts/add'); ?>";
-    const form= modalElement.querySelector('form');
+
+     const form= modalElement.querySelector('form');
     var formData = new FormData($('#'+form.id)[0]);
     formData.append('profile_picture', selectedFile);
+
+    if (contact_id!==null || contact_id!=="") {
+    var url = "<?php echo base_url('contacts/edit'); ?>";
+    formData.append('contact_id', contact_id);
+    }
 
     return new Promise((resolve, reject) => {
         $.ajax({
@@ -337,20 +301,23 @@ function validate_and_send(modalElement) {
             processData: false,
             dataType: "JSON",
             success: function (data) {
+
                 if (data.status) {
                     resolve(true);
-                     get_data();
                     modal(modalElement.id,'hide');
-                    
+                    refresh();
+
+
                 } else {
 
 
                      for (var i = 0; i < data.inputerror.length; i++) {
                         $('[name="' + data.inputerror[i] + '"]').parent().parent().addClass('has-error');
                         $('[name="' + data.inputerror[i] + '"]').next().text(data.error_string[i]);
-                    }   
+                    }
+
                     resolve(false);
-                  
+
                 }
                 $('#add_btn').attr('disabled', false);
             },
@@ -384,6 +351,10 @@ function reinitialize_modal(modal_id) {
     select.value = "0";
     });
 
+    modal.querySelectorAll('button').forEach(select => {
+    select.value = "";
+    });
+
 }
 
 function get_data() {
@@ -414,7 +385,7 @@ function get_data() {
         processData: false,
         dataType: "JSON",
         success: function (data) {
-            
+
             // Remove shimmer placeholders
             document.querySelectorAll('.shimmer').forEach(el => el.remove());
             total_number.textContent=data.total+" TOTAL";
@@ -483,10 +454,10 @@ function show_contact_infos(contact_id) {
 // gets contact data from selected row
 
 function get_contact_info(id) {
-    
+
  const info_container= document.querySelector('.info_container');
     const url = "<?php echo base_url('contacts/get_infos'); ?>"+"/"+id;
-    
+
 
     $.ajax({
         url: url,
@@ -496,7 +467,7 @@ function get_contact_info(id) {
         processData: false,
         dataType: "JSON",
         success: function (data) {
-            
+            info_container.querySelector('#edit_btn').setAttribute('contact-data',JSON.stringify(data));
             info_container.querySelector('#fullname').textContent=data.fullname;
             info_container.querySelector('#description').textContent=data.description;
             info_container.querySelector('#phone').textContent=data.phone;
@@ -511,17 +482,17 @@ function get_contact_info(id) {
             }else{
               info_container.querySelector('#photo_img').style.display="none";
               info_container.querySelector('#photo_letters').style.display='flex';
-            info_container.querySelector('#photo_letters').textContent=data.first_letters;  
+            info_container.querySelector('#photo_letters').textContent=data.first_letters;
             }
-            console.log(data.socials_html);
 
-            info_container.querySelector('#socials_div').innerHTML=data.socials_html;  
+            info_container.querySelector('#delete_btn').value=data.id;
+            info_container.querySelector('#socials_div').innerHTML=data.socials_html;
 
-            
+
         },
         error: function (jqXHR, textStatus, errorThrown) {
             alert('Erreur s\'est produite');
-           
+
         }
     });
 }
@@ -540,7 +511,116 @@ function close_infos() {
 
  empty_infos.style.display="flex";
  info_container.classList.remove('active');
- contact_infos.classList.remove('active');  
+ contact_infos.classList.remove('active');
+}
+
+// gets infos and open edit modal
+
+function open_edit_modal(btn) {
+
+    const contact_data= JSON.parse(btn.getAttribute('contact-data'));
+
+    const modalElement= document.querySelector('#contact_modal');
+
+    modalElement.querySelector('#first_name').value=contact_data.first_name;
+    modalElement.querySelector('#last_name').value=contact_data.last_name;
+    modalElement.querySelector('#description').value=contact_data.description;
+    modalElement.querySelector('#phone').value=contact_data.phone;
+    modalElement.querySelector('#email').value=contact_data.email;
+    modalElement.querySelector('#socials_fb').value=contact_data.fb;
+    modalElement.querySelector('#socials_wp').value=contact_data.wp;
+    modalElement.querySelector('#socials_insta').value=contact_data.insta;
+    modalElement.querySelector('#socials_x').value=contact_data.x;
+    modalElement.querySelector('#add_btn').value=contact_data.id;
+
+    const img_path=contact_data.img_path;
+
+    if (img_path!=='') {
+
+    modalElement.querySelector('#logoDisplay').src=img_path;
+    modalElement.querySelector('#logoDisplay').classList.add('active');
+    modalElement.querySelector('#btn_remove_img').style.display='flex';
+
+
+    }else{
+    modalElement.querySelector('#logoDisplay').src="<?=base_url()?>assets/icons/newimage.png";
+    modalElement.querySelector('#logoDisplay').classList.remove('active');
+    modalElement.querySelector('#btn_remove_img').style.display='none';
+    }
+
+
+    modal('contact_modal','show');
+
+
+}
+
+// updates a row of a contact
+function refresh() {
+
+
+currentLetter='A'
+loading= false;
+
+var table=document.querySelector('table');
+table.innerHTML='';
+get_data();
+close_infos();
+
+
+}
+
+function open_dialog(btn) {
+    show_delete_dialog(btn.value);
+}
+
+function show_delete_dialog(contact_id) {
+
+   const dialog= document.querySelector('.dialog_cont');
+   const body= document.querySelector('body');
+   const delete_btn= dialog.querySelector('#delete');
+   const cancel= dialog.querySelector('#cancel');
+
+   dialog.style.display='flex';
+   body.classList.add('n-scroll');
+
+   cancel.addEventListener('click', function(){
+    dialog.style.display='none';
+   body.classList.remove('n-scroll');
+   });
+
+
+
+   delete_btn.addEventListener('click', function(){
+    
+    const url = "<?php echo base_url('contacts/delete'); ?>"+"/"+contact_id;
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: {},
+        contentType: false,
+        processData: false,
+        dataType: "JSON",
+        success: function (data) {
+
+            dialog.style.display='none';
+            body.classList.remove('n-scroll');
+
+            refresh();
+
+          
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+     dialog.style.display='none';
+     body.classList.remove('n-scroll');
+            alert('Erreur s\'est produite');
+
+        }
+    });
+
+   });
+   
+
+
 }
 
 

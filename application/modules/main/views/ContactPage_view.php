@@ -27,20 +27,8 @@
     				<div class="right">
 
     					<div class="main_btns">
-    						<button class="primary_btn oval_btn fas fa-plus" onclick="modal('contact_modal','show');"></button>
-    						<button class="search_btn oval_btn fas fa-search" onclick="show_box(this,'search_box')"></button>
-    					</div>
-    					
 
-    						<div class="search_box close">
-
-    					<div class="search_types">
-    						<button class="all selected" value="0">All</button>
-    						<button value="1">Name</button>
-    						<button value="2">Number</button>
-    						<button value="3">Email</button>
-    						<button value="4">tag</button>
-    					</div>
+    					<!-- <div class="search_box">
 
     					<div class="search_input">
     						<i class="fas fa-search"></i>
@@ -48,6 +36,10 @@
     					</div>
     					
     				</div>
+ -->    				
+    						<button class="search_btn oval_btn fas fa-search" onclick="show_box(this,'search_box')"></button>
+    						<button id="btn_new" class="primary_btn oval_btn fas fa-plus" onclick="modal('contact_modal','show');"></button>
+    					</div>
     					
     				</div>
     			
@@ -127,7 +119,7 @@
     						<div class="top">
     						<h6 id="fullname">Full name </h6>
 	    					<div class="right">
-	    					<button class="oval_btn"><i class="fas fa-pencil"></i></button>
+	    					<button class="oval_btn" id="edit_btn" onclick="open_edit_modal(this)" contact-data=""><i class="fas fa-pencil"></i></button>
 	    					</div>	
     						</div>
     						
@@ -171,6 +163,10 @@
 
     		</div>
 
+    		<div class="footer">
+    		<button id="delete_btn" onclick="open_dialog(this)"><i class="far fa-trash-alt"></i> Delete contact</button>	
+    		</div>
+    		
 
     		</div>
 
