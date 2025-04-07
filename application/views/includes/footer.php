@@ -1,3 +1,34 @@
+  
+    <div class="main_loader">
+
+    <div class="loader">
+    <i class="fas fa-file-alt form-icon"></i>
+    <div class="arrows">
+
+        <i class="fas fa-chevron-right arrow-icon" style="font-size: 16px;"></i>
+        <i class="fas fa-chevron-right arrow-icon" style="font-size: 15px;"></i>
+        <i class="fas fa-chevron-right arrow-icon" style="font-size: 14px;"></i>
+
+    </div>
+    <i class="fas fa-cloud cloud-icon"></i>
+    </div>
+ 
+    </div>
+    
+    </div>
+
+    <!-- this is the custom toast -->
+    <div class="ctoast">
+        <div class="top">
+         <div class="title">
+             <i class="icon fa "></i> 
+             <h6>Toast title</h6>   
+         </div> 
+         <i class="close fas fa-xmark" onclick="close_toast()"></i> 
+        </div>
+
+        <p>Toast will be message</p>
+    </div>
 
     <div id="scrollToTopButton" class="floating-button">
     <i class="fas fa-arrow-up"></i>
@@ -47,17 +78,24 @@
 let currentLetter = 'A'; // Start with the first letter
 let loading = false; // Prevent duplicate calls while loading
 let selectedFile = null; // Store the valid file globally
-let search_value='';
+let currentIndex = 0;
+// Group special characters under the label "SPECIAL"
+const characters = ["SPECIAL", ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
+
+
+
+let is_favorite=false;
 
 document.addEventListener('DOMContentLoaded', function () {
 
 
 // Trigger loading on scroll
 window.addEventListener('scroll', () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10) {
         get_data();
     }
 });
+
 get_data();
 
  });
@@ -69,6 +107,7 @@ function modal(modal_id, type) {
     var body= document.querySelector("body");
 
     if (type==='hide') {
+
         modal.classList.remove("show");
         body.classList.remove("n-scroll");
         wrapper.classList.remove("blur");
@@ -155,7 +194,7 @@ function show_file_picker(event) {
                 reader.readAsDataURL(file);
             } else {
                 // Notify the user about the invalid file size
-                alert('Please choose an image smaller than 2MB.');
+                show_toast('Image size','Please choose an image smaller than 2MB.','error');
 
                 // Reset the file input for invalid file selection
                 fileInput.value = '';
@@ -196,8 +235,13 @@ function empty_input(input_id) {
 function send_data(modal_id) {
     const modalElement= document.querySelector('#'+modal_id);
     const form= modalElement.querySelector('form');
+    modalElement.querySelectorAll('.error, .error_secondary').forEach(span => {
+    span.textContent = "";
+    });
     if (!hasEmpty(form.id)) {
       validate_and_send(modalElement);
+    }else{
+     show_toast('Required fields','Please, fill out all required fields','error');
     }
 
 }
@@ -292,6 +336,8 @@ function validate_and_send(modalElement) {
     formData.append('contact_id', contact_id);
     }
 
+     load(true);
+
     return new Promise((resolve, reject) => {
         $.ajax({
             url: url,
@@ -302,10 +348,14 @@ function validate_and_send(modalElement) {
             dataType: "JSON",
             success: function (data) {
 
+                load(false);
+
                 if (data.status) {
                     resolve(true);
                     modal(modalElement.id,'hide');
+                    show_toast('Success','A new contact has been added successsfully','success');
                     refresh();
+
 
 
                 } else {
@@ -316,13 +366,18 @@ function validate_and_send(modalElement) {
                         $('[name="' + data.inputerror[i] + '"]').next().text(data.error_string[i]);
                     }
 
+                    show_toast('Validation error','Some of your informations are taken or invalid.','error');
+
                     resolve(false);
 
                 }
                 $('#add_btn').attr('disabled', false);
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert('Erreur s\'est produite ');
+
+                load(false);
+
+                show_toast('Validation error','An error has occured while validating your data','error');
                 $('#add_btn').attr('disabled', false);
                 reject(false);
             }
@@ -338,6 +393,10 @@ function reinitialize_modal(modal_id) {
     modal.querySelector('img').src="<?=base_url()?>assets/icons/newimage.png";
     modal.querySelector('img').classList.remove("active");
     modal.querySelector('#btn_remove_img').style.display='none';
+
+    const title=modal.querySelector('.title');
+
+    title.querySelector('label').textContent="Add new contact";
 
 
      modal.querySelectorAll('.error, .error_secondary').forEach(span => {
@@ -357,14 +416,15 @@ function reinitialize_modal(modal_id) {
 
 }
 
+
 function get_data() {
-    if (loading || currentLetter > 'Z') return;
+    if (loading || currentIndex >= characters.length) return;
 
     loading = true;
+    const currentChar = characters[currentIndex];
     const url = "<?php echo base_url('contacts/get'); ?>";
     const table_body = document.querySelector('table');
     const total_number = document.querySelector('#total_number');
-
 
     // Show shimmer placeholders
     for (let i = 0; i < 3; i++) {
@@ -375,7 +435,8 @@ function get_data() {
 
     // Create FormData for AJAX request
     const formData = new FormData();
-    formData.append('letter', currentLetter);
+    formData.append('letter', currentChar);
+    formData.append('is_favorite', is_favorite);
 
     $.ajax({
         url: url,
@@ -385,38 +446,33 @@ function get_data() {
         processData: false,
         dataType: "JSON",
         success: function (data) {
-
             // Remove shimmer placeholders
-            document.querySelectorAll('.shimmer').forEach(el => el.remove());
-            total_number.textContent=data.total+" TOTAL";
+            table_body.querySelectorAll('.shimmer').forEach(el => el.remove());
+            total_number.textContent = data.total + " TOTAL";
 
-            // Check if contacts exist for this letter
             if (data.table_list !== '') {
-                // Add the header for the current letter
-                const headerRow = `<tr class="header"><td>${currentLetter}</td></tr>`;
+                const headerRow = `<tr class="header"><td>${currentChar === "SPECIAL" ? "..." : currentChar}</td></tr>`;
                 table_body.insertAdjacentHTML('beforeend', headerRow);
-
-                // Append rows to the table body
                 table_body.insertAdjacentHTML('beforeend', data.table_list);
             }
 
-            // Move to the next letter
-            currentLetter = String.fromCharCode(currentLetter.charCodeAt(0) + 1);
-
+            // Move to the next character
+            currentIndex++;
             loading = false;
 
             // Automatically load the next batch if the screen isn't filled
             check_screen_space();
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            alert('Erreur s\'est produite');
+
+            show_toast('Server error','An error has occured while fetching your data. Please, try refreshing the page','error');
             loading = false;
 
-            // Remove shimmer placeholders on error
             document.querySelectorAll('.shimmer').forEach(el => el.remove());
         }
     });
 }
+
 
 function check_screen_space() {
     const contentHeight = document.body.offsetHeight;
@@ -456,8 +512,12 @@ function show_contact_infos(contact_id) {
 function get_contact_info(id) {
 
  const info_container= document.querySelector('.info_container');
+ const shimmer= document.querySelector('.info_shimers');
+ const contact_infos= document.querySelector('.contact_infos');
     const url = "<?php echo base_url('contacts/get_infos'); ?>"+"/"+id;
 
+    contact_infos.style.display='none';
+    shimmer.style.display='flex';
 
     $.ajax({
         url: url,
@@ -467,6 +527,7 @@ function get_contact_info(id) {
         processData: false,
         dataType: "JSON",
         success: function (data) {
+
             info_container.querySelector('#edit_btn').setAttribute('contact-data',JSON.stringify(data));
             info_container.querySelector('#fullname').textContent=data.fullname;
             info_container.querySelector('#description').textContent=data.description;
@@ -480,18 +541,27 @@ function get_contact_info(id) {
             info_container.querySelector('#photo_letters').style.display='none';
 
             }else{
-              info_container.querySelector('#photo_img').style.display="none";
-              info_container.querySelector('#photo_letters').style.display='flex';
-            info_container.querySelector('#photo_letters').textContent=data.first_letters;
+            info_container.querySelector('#photo_img').style.display="none";
+            info_container.querySelector('#photo_letters').style.display='flex';
+
+            if (starts_with_non_etter(data.first_letters)) {
+             info_container.querySelector('#photo_letters').textContent='...';   
+            }else{
+                info_container.querySelector('#photo_letters').textContent=data.first_letters;
+            }
+            
             }
 
             info_container.querySelector('#delete_btn').value=data.id;
             info_container.querySelector('#socials_div').innerHTML=data.socials_html;
 
+                contact_infos.style.display='flex';
+                shimmer.style.display='none';
+
 
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            alert('Erreur s\'est produite');
+            show_toast('Server error','An error has occured while fetching contact data, retry.','error');
 
         }
     });
@@ -511,7 +581,7 @@ function close_infos() {
 
  empty_infos.style.display="flex";
  info_container.classList.remove('active');
- contact_infos.classList.remove('active');
+ contact_infos.style.display='none';
 }
 
 // gets infos and open edit modal
@@ -521,7 +591,9 @@ function open_edit_modal(btn) {
     const contact_data= JSON.parse(btn.getAttribute('contact-data'));
 
     const modalElement= document.querySelector('#contact_modal');
+    const title=modalElement.querySelector('.title');
 
+    title.querySelector('label').textContent="Edit contact";
     modalElement.querySelector('#first_name').value=contact_data.first_name;
     modalElement.querySelector('#last_name').value=contact_data.last_name;
     modalElement.querySelector('#description').value=contact_data.description;
@@ -560,6 +632,7 @@ function refresh() {
 
 currentLetter='A'
 loading= false;
+currentIndex = 0;
 
 var table=document.querySelector('table');
 table.innerHTML='';
@@ -592,6 +665,7 @@ function show_delete_dialog(contact_id) {
 
    delete_btn.addEventListener('click', function(){
     
+                load(true);
     const url = "<?php echo base_url('contacts/delete'); ?>"+"/"+contact_id;
     $.ajax({
         url: url,
@@ -601,27 +675,138 @@ function show_delete_dialog(contact_id) {
         processData: false,
         dataType: "JSON",
         success: function (data) {
-
+                load(false);
             dialog.style.display='none';
             body.classList.remove('n-scroll');
+            show_toast('Success',"A contact has been successsfully removed", 'success');
 
             refresh();
 
           
         },
         error: function (jqXHR, textStatus, errorThrown) {
+                load(false);
      dialog.style.display='none';
      body.classList.remove('n-scroll');
-            alert('Erreur s\'est produite');
+            show_toast('Deletion error',"An error has occured while deleting the contact.", 'error');
 
         }
     });
 
    });
-   
+
+}
+
+function toggle_favorite(contact_id) {
+    
+    const table= document.querySelector('table');
+    const favorite_btn= table.querySelector("#fav"+contact_id);
+    const favorite_btn_icon= favorite_btn.querySelector("i");
+
+    const url = "<?php echo base_url('contacts/toggle_favorite'); ?>"+"/"+contact_id;
+    favorite_btn.disabled = true;
+
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: {},
+        contentType: false,
+        processData: false,
+        dataType: "JSON",
+        success: function (data) {
+
+        
+        if (favorite_btn_icon.classList.contains('far')) {
+
+            favorite_btn_icon.classList.remove('far');
+            favorite_btn_icon.classList.add('fas');
+
+        }else{
+
+            favorite_btn_icon.classList.add('far');
+            favorite_btn_icon.classList.remove('fas');
+         
+        }
+
+        favorite_btn.disabled = false; 
+
+          
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            favorite_btn.disabled = false;
+        show_toast('Error',"An error has occured. Try again please.", 'error');
+
+        }
+    });
 
 
 }
+
+// toggle fetching favorites
+
+function toggle_fetch_favorites(btn) {
+
+    btn.classList.toggle('deselected')
+    if (btn.classList.contains('deselected')) {
+        is_favorite=false;
+    }else{
+        is_favorite=true;
+    }
+
+    refresh();
+}
+
+// verifies if a string doesn't start with a letter
+
+function starts_with_non_etter(str) {
+    // Check if the first character is NOT a letter (a-z or A-Z)
+    return /^[^a-zA-Z]/.test(str);
+}
+
+// for toast, type is either "success" or "error"
+function show_toast(title, message, type) {
+
+ const toast= document.querySelector('.ctoast'); 
+
+ if (type==='error') {
+    toast.querySelector('h6').classList.add('error');
+    toast.querySelector('.icon').classList.add('error');
+    toast.querySelector('.icon').classList.remove('fa-check');
+    toast.querySelector('.icon').classList.add('fa-xmark');
+ }else{
+    toast.querySelector('h6').classList.remove('error');
+    toast.querySelector('.icon').classList.remove('error');
+    toast.querySelector('.icon').classList.add('fa-check');
+    toast.querySelector('.icon').classList.remove('fa-xmark');
+ }
+
+ toast.querySelector('h6').textContent=title;
+ toast.querySelector('p').textContent=message;
+
+ toast.classList.remove('hide');
+toast.classList.add('show');  
+
+setTimeout(close_toast, 3000);
+
+}
+
+
+function close_toast() {
+
+    document.querySelector('.ctoast').classList.remove('show');
+    document.querySelector('.ctoast').classList.add('hide');
+
+}
+
+function load(isloading) {
+    if (isloading) {
+        document.querySelector('.main_loader').style.display='flex';
+    }else{
+        document.querySelector('.main_loader').style.display='none';
+
+    }
+}
+
 
 
 </script>

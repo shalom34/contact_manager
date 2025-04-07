@@ -2,10 +2,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
         <meta name="description" content="POS - Bootstrap Admin Template">
-        <meta name="keywords" content="easyposBI">
-        <meta name="author" content="NexusX - easypos for burundi">
+        <meta name="author" content="Shalom Geek">
         <meta name="robots" content="noindex, nofollow">
-        <title>Easy Pos for busnesses</title>
+        <title>My contacts</title>
         <script src="<?= base_url() ?>assets/js/theme-script.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
 
         <!-- Favicon -->

@@ -75,7 +75,7 @@ class ContactPage extends CI_Controller {
         'PHOTO' => $photo
     );
 
-    if (!isset($_POST['contact_id'])) {
+    if ($_POST['contact_id']=='' || $_POST['contact_id']==null) {
       // insert them in the table
     $this->Model->create('contacts', $contact_data);
     echo json_encode(['status' => true]);  
@@ -84,6 +84,7 @@ class ContactPage extends CI_Controller {
     $contact_id= $_POST['contact_id'];
     $this->Model->update('contacts',array('CONTACT_ID'=>$contact_id),$contact_data);
     echo json_encode(['status' => true]);
+
     }
     
       
@@ -109,7 +110,8 @@ class ContactPage extends CI_Controller {
 
     // verify if the user is update an existing number
 
-    if (isset($_POST['contact_id'])) {
+    if ($_POST['contact_id']!='' && $_POST['contact_id']!=null) {
+
       $where_cond =  ' AND CONTACT_ID != '.$_POST['contact_id'].' ';
 
     }
@@ -117,6 +119,12 @@ class ContactPage extends CI_Controller {
     // validation of a phone number
     $phone=$this->input->post('phone');
     $phone_data = $this->Model->getRequeteOne('SELECT CONTACT_ID FROM contacts WHERE  PHONE="'.$phone.'"'.$where_cond);
+
+    if ($this->validate_phone_number($phone)==false) {
+    $data['error_string'][] = "The phone number is invalid.";
+      $data['inputerror'][] = "phone";
+      $data['status'] = FALSE;   
+    }
 
     if (!empty($phone_data)) {
    
@@ -129,13 +137,40 @@ class ContactPage extends CI_Controller {
 
     // validation of an email
     $email=$this->input->post('email');
-    $email_data = $this->Model->getRequeteOne('SELECT CONTACT_ID FROM contacts WHERE  EMAIL="'.$email.'"'.$where_cond);
+
+    if (!empty($email)) {
+     $email_data = $this->Model->getRequeteOne('SELECT CONTACT_ID FROM contacts WHERE  EMAIL="'.$email.'" AND EMAIL!=NULL'.$where_cond);
+
+      if ($this->validate_email($email)==false) {
+          
+    $data['error_string'][] = "The email is invalid.";
+      $data['inputerror'][] = "email";
+      $data['status'] = FALSE;   
+     } 
+    }
+   
+
+ 
 
     if (!empty($email_data)) {
    
       $data['error_string'][] = "The email is already registered.";
       $data['inputerror'][] = "email";
       $data['status'] = FALSE;
+
+      }
+
+      // validation of whatsapp number if typed
+
+      $wp=$this->input->post('socials_wp');
+
+      if (!empty($wp)) {
+          
+         if ($this->validate_phone_number($phone)==false) {
+    $data['error_string'][] = "The Whatsapp number is invalid.";
+      $data['inputerror'][] = "socials_wp";
+      $data['status'] = FALSE;   
+    } 
 
       }
 
@@ -151,31 +186,63 @@ class ContactPage extends CI_Controller {
 
 function get_contacts() {
     $letter = $_POST['letter'] ?? 'A';
+    $contact_number = $this->Model->getRequeteOne("SELECT COUNT(CONTACT_ID) AS TOTAL FROM contacts");
 
-    $contact_number= $this->Model->getRequeteOne("SELECT COUNT(CONTACT_ID) AS TOTAL FROM contacts");
+    $add_favorite_table='';
+    $add_favorite_cond='';
 
-    // Fetch all contacts for the given letter
-    $contacts = $this->Model->getRequete("SELECT * FROM contacts WHERE FIRST_NAME LIKE '$letter%' ORDER BY FIRST_NAME ASC");
+    if ($_POST['is_favorite']=='true') {
+        $add_favorite_table=', favorites ';  
+        $add_favorite_cond=' AND contacts.CONTACT_ID=favorites.CONTACT_ID ';
+
+    }
+
+    $returned_contacts = $this->Model->getRequeteOne("SELECT COUNT(contacts.CONTACT_ID) AS TOTAL FROM contacts".$add_favorite_table." WHERE 1 ".$add_favorite_cond);
+
+    // Handle special characters as a group
+    if ($letter === "SPECIAL") {
+        // Query for names starting with any special character
+        $contacts = $this->Model->getRequete("
+            SELECT *,contacts.CONTACT_ID AS CONTACT_ID FROM contacts"
+            .$add_favorite_table. 
+            " WHERE FIRST_NAME REGEXP '^[^A-Za-z]'"
+            .$add_favorite_cond.
+            " ORDER BY FIRST_NAME ASC");
+    } else {
+        // Query for specific alphabetic letters
+        $contacts = $this->Model->getRequete("
+            SELECT *,contacts.CONTACT_ID AS CONTACT_ID FROM contacts"
+            .$add_favorite_table. 
+            " WHERE FIRST_NAME LIKE '$letter%'"
+            .$add_favorite_cond.
+            " ORDER BY FIRST_NAME ASC");
+    }
 
     $table_list = '';
-
     foreach ($contacts as $contact) {
 
-        $profile_tag='<img class="icon" id="photo_img" src="'.base_url().$contact['PHOTO'].'">';
+        $favorite = $this->Model->getRequeteOne("SELECT FAVORITE_ID FROM favorites WHERE CONTACT_ID=" . $contact['CONTACT_ID']);
+        $favorite_star_class = empty($favorite) ? 'far' : 'fas';
 
+        $profile_tag = '<img class="icon" id="photo_img" src="' . base_url() . $contact['PHOTO'] . '">';
         if ($contact['PHOTO'] == null || $contact['PHOTO'] == "" || !file_exists('uploads/profiles/' . basename($contact['PHOTO']))) {
 
-            $firstLetters = substr($contact['FIRST_NAME'], 0, 1).substr($contact['LAST_NAME'], 0, 1);
-             $profile_tag='<div id="photo_letters" class="icon">'.$firstLetters.'</div>';
-            }
+            $firstLetters = substr($contact['FIRST_NAME'], 0, 1) . substr($contact['LAST_NAME'], 0, 1);
 
-        $table_list .= '<tr id="row'.$contact['CONTACT_ID'].'" onclick="show_contact_infos('.$contact['CONTACT_ID'].')">
+             if ($letter === "SPECIAL") {
+                $firstLetters='...';
+             }
+
+            $profile_tag = '<div id="photo_letters" class="icon">' . $firstLetters . '</div>';
+        }
+
+        $table_list .= '<tr id="row' . $contact['CONTACT_ID'] . '" onclick="show_contact_infos(' . $contact['CONTACT_ID'] . ')">
             <td class="infos">'
-                .$profile_tag.
+                . $profile_tag .
                 '<div class="important_infos"> 
-                <div class="identity" id="fullname">
-                    ' . $contact["FIRST_NAME"] . " " . $contact["LAST_NAME"] . '
-                    <span id="description">' . $contact["DESCRIPTION"] . '</span>
+                <div class="identity" id="fullname">'
+                    . $contact["FIRST_NAME"] . " " . $contact["LAST_NAME"] .
+                    '<span id="description">' . $contact["DESCRIPTION"] . '</span>
                 </div>
                  <div class="identity_contacts">
                     <span id="phone">' . $contact["PHONE"] . '</span>
@@ -184,15 +251,16 @@ function get_contacts() {
             </td>
             <td class="options">
                 <button><i class="fas fa-phone"></i></button>
-                <button><i class="fas fa-star"></i></button>
-                <button onclick="show_contact_infos('.$contact['CONTACT_ID'].')"><i class="fas fa-ellipsis-h"></i></button>
+                <button id="fav' . $contact['CONTACT_ID'] . '" onclick="toggle_favorite(' . $contact['CONTACT_ID'] . ')"><i class="' . $favorite_star_class . ' fa-star"></i></button>
+                <button onclick="show_contact_infos(' . $contact['CONTACT_ID'] . ')"><i class="fas fa-ellipsis-h"></i></button>
             </td>
         </tr>';
     }
 
     echo json_encode([
         'table_list' => $table_list,
-        'total' => $contact_number['TOTAL']
+        'total' => $contact_number['TOTAL'],
+        'returned_contacts' => $returned_contacts['TOTAL']
     ]);
 }
 
@@ -302,6 +370,28 @@ foreach ($socials_data as $social) {
     ]);
 }
 
+// add a contact to the favorites
+
+function toggle_favorite($contact_id){
+    
+    $favorite= $this->Model->getRequeteOne("SELECT FAVORITE_ID FROM favorites WHERE CONTACT_ID=".$contact_id);
+
+    $status=false;
+    if (!empty($favorite)) {
+
+        $favorite_id=$favorite['FAVORITE_ID'];
+        $status=$this->Model->delete('favorites', ['FAVORITE_ID' => $favorite_id]);
+
+    }else{
+
+        $status=$this->Model->create('favorites', ['CONTACT_ID'=>$contact_id]);
+        
+    }
+
+    echo json_encode(['status'=>$status]);
+}
+
+
 
 // uploads files to the folder
 
@@ -331,5 +421,27 @@ function delete_contact($id){
      }
 }
 
+function validate_phone_number($phoneNumber) {
+    $pattern = "/^\+?[0-9]{10,15}$/";
+
+    if (preg_match($pattern, $phoneNumber)) {
+        return true; 
+    } else {
+        return false;
+    }
 }
+
+function validate_email($email) {
+    $pattern = "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/";
+    if (preg_match($pattern, $email)) {
+        return true; // Valid email address
+    }
+    return false; // Invalid email address
+}
+
+
+
+}
+
+
 ?>

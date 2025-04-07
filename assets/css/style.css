@@ -33,6 +33,180 @@ body{
 
 }
 
+.main_loader{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99999;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+}
+
+/* Container for the animation */
+.main_loader .loader {
+    position: relative;
+    width: 200px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0px 30px;
+    font-size: 30px; /* Icon size */
+    background: var(--dark_white);
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+/* Form Icon */
+.main_loader .loader .form-icon {
+    color: #0078D7;
+    font-size: 30px;
+}
+
+/* Cloud Icon */
+.main_loader .loader .cloud-icon {
+    color: var(--primary);
+    font-size: 30px;
+}
+
+.main_loader .loader .arrows{
+    position: absolute;
+     animation: move-arrow 1s linear infinite; /* Animation */
+}
+
+/* Chevron Arrow Icon */
+.main_loader .loader .arrow-icon {
+    color: #0078D7;
+    font-size: 18px;
+}
+
+/* Keyframes for the arrow movement */
+@keyframes move-arrow {
+    0% {
+        left: 50px; /* Start near the form icon */
+        opacity: 1;
+    }
+    50% {
+        left: 80px; /* Midway towards the cloud icon */
+        opacity: 1;
+    }
+    100% {
+        left: 120px; /* Reaches near the cloud icon */
+        opacity: 0; /* Fades out */
+    }
+}
+
+.ctoast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px; 
+    z-index: 1000000;
+    min-width: 30%;
+    border-radius: 8px;
+    background: rgb(252, 252, 252, 1.0);
+    padding: 10px;
+    box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.2); 
+    max-width: 100%;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+
+}
+
+.ctoast .top{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.ctoast .top .title{
+
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.ctoast .top .title .icon{
+
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    color: rgb(0, 200, 0);
+    background: rgb(0, 200, 0, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ctoast .top .title h6{
+   font-weight: 600;
+   color: rgb(0, 200, 0);
+   margin-top: 6px;
+}
+
+.ctoast .top .title h6.error{
+   color: rgb(255, 0, 0);
+}
+
+.ctoast .top .title .icon.error{
+    background: rgb(255, 0, 0, 0.07);
+    color: rgb(255, 0, 0);
+}
+
+.ctoast .top .close{
+    cursor: pointer;
+}
+
+.ctoast p{
+    font-size: 12px;
+    margin-bottom: 0px;
+}
+
+.ctoast.show{
+    display: flex;
+    visibility: visible;
+    animation: show_toast .3s linear;
+}
+
+.ctoast.hide{
+    display: flex;
+    animation: hide_toast 1.5s forwards;
+}
+
+
+@keyframes show_toast{
+    0%{
+
+        right: -40%;
+    }
+    35%{
+        right: 80px;
+    }
+    70%{
+        right: 5px;
+    }
+    100%{
+        right: 30px;
+    }
+}
+
+@keyframes hide_toast{
+    0%{
+        right: 50px;
+    }
+    100%{
+        right: -150%;
+        display: none;
+    }
+}
+
+
+
 .dialog_cont{
 
     position: fixed;
@@ -118,6 +292,64 @@ button.secondary{
 
 }
 
+.main_container .empty_table{
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    margin-top: 70px;
+    width: 100%;
+    justify-self: start;
+    align-self: center;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.main_container .empty_table i{
+    font-size: 120px;
+    color: var(--primary);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main_container .empty_table p{
+    font-size: 18px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.info_shimers{
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.info_shimers .shimmer {
+    background: linear-gradient(90deg, rgb(229, 229, 229) 25%, rgb(200, 200, 200) 50%, rgb(229, 229, 229) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.info_shimers .circle{
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+}
+
+.info_shimers .row{
+    width: 100%;
+    height: 60px;
+    border-radius: 10px;
+    margin: 0;
+}
+
 .main_container .info_container::-webkit-scrollbar-track{
     border-radius: 20px;
 }
@@ -130,6 +362,7 @@ button.secondary{
     gap: 10px;
     min-height: 100%;
     width: 100%;
+    text-align: center;
 }
 
 
@@ -159,6 +392,14 @@ button.secondary{
     
     font-weight: normal;
     font-size: 14px;
+    text-align: center;
+
+}
+
+.main_container .info_container .empty_infos .text span i{
+    
+   color: var(--primary);
+    
 }
 
 .main_container .info_container .contact_infos{
@@ -215,6 +456,7 @@ button.secondary{
     text-transform: uppercase;
     color: var(--primary);
     align-self: flex-start;
+    text-align: center;
 }
 
 .main_container .info_container .contact_infos .header .about .names{
@@ -380,6 +622,23 @@ button.secondary{
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
 }
 
+.oval_btn.float{
+    position: fixed;
+    left: 54vw;
+    bottom: 30px;
+}
+
+.oval_btn.float_top{
+    position: fixed;
+    left: 54vw;
+    top: 65px;
+}
+
+.oval_btn.deselected{
+    background: var(--milkywhite);
+    color: var(--primary);
+}
+
 .main_container .container .top_bar .right{
     display: flex;
     flex-direction: column;
@@ -458,7 +717,7 @@ button.secondary{
 }
 
 .main_container .container .top_bar .search_box .search_input input{
-    width: 100%;
+    width: 20vw;
     height: 38px;
     border: none;
     background: transparent;
@@ -479,7 +738,7 @@ button.secondary{
 .container .table_container{
     width: 100%;
     display: flex;
-    margin-top: 30px;
+    margin-top: 40px;
 }
 .container .table_container table{
     width: 100%;
@@ -543,6 +802,7 @@ button.secondary{
     font-size: 20px;
     font-weight: 700;
     text-transform: uppercase;
+    text-align: center;
 }
 
 .container .table_container table tbody tr td.infos .identity{
@@ -1204,16 +1464,41 @@ body.n-scroll{
 
     }
 
+    .cmodal .title{
+        text-transform: uppercase;
+        margin-top: -45px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .cmodal .title label{
+         font-size: 20px;
+    }
+
+ .cmodal .title span{
+    display: none;
+ }
+
+
 .cmodal .cmodal-cont .close{
     align-self: end;
-    background: transparent;
+    background: var(--milkywhite);
     border: none;
     width: 35px;
     font-weight: normal;
     height: 35px;
+    border-radius: 50%;
+    margin-top: -15px;
+    margin-right: -15px;
+    border: 2.5px solid var(--primary);
 }
 .cmodal .cmodal-cont .close i{
-    font-size: 20px;
+    font-size: 14px;
+    color: var(--primary);
 }
 
 .cmodal .cmodal-cont .cmodal-cont-content{
@@ -1324,6 +1609,13 @@ body.n-scroll{
 .main_container .container .top_bar{
 width: 100%;
 }
+
+.oval_btn.float, .oval_btn.float_top{
+    left: auto;
+    right: 15px;
+}
+
+
 .main_container .info_container{
     width: 100%;
     right: 0;
@@ -1357,6 +1649,31 @@ width: 100%;
     min-height: 100vh !important;
 }
 
+.cmodal .cmodal-cont .close{
+  display: none;
+}
+
+.cmodal .cmodal-cont .title{
+  margin-top: auto;
+  justify-content: space-between;
+}
+
+.cmodal .title span{
+    display: flex;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background: transparent;
+    color: var(--black);
+ }
+
+ .cmodal .title span i{
+ font-size: 24px;
+ }
+
+
 .cmodal .cmodal_footer button{
     width: 50%;
 }
@@ -1379,12 +1696,18 @@ width: 100%;
 width: 100%;
 }
 
-.main_container .container .top_bar .search_box{
-display: none;
+.container .table_container table tbody tr td.options{
+   align-self: flex-start;
 }
+
 .main_container .container .top_bar .search_box .search_input{
-    width: calc(100vw - 85px);
+    width: calc(100vw - 150px);
 }
+
+.main_container .container .top_bar .search_box .search_input input{
+    width: 100%;
+}
+
 .main_container .container .top_bar .right .search_btn{
 display: block;
 }

@@ -55,6 +55,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
   $route['contacts/get'] = 'main/ContactPage/get_contacts';
   $route['contacts/get_infos/(:any)'] = 'main/ContactPage/get_contact_infos/$1';
   $route['contacts/delete/(:any)'] = 'main/ContactPage/delete_contact/$1';
+  $route['contacts/toggle_favorite/(:any)'] = 'main/ContactPage/toggle_favorite/$1';
 
 
 

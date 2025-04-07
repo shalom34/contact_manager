@@ -15,9 +15,6 @@
     		<!-- start container -->
     		<div class="container">
 
-    			<!-- <div class="close_div">
-    				<button onclick="show()"><i class="fas fa-xmark"></i></button>
-    			</div> -->
 
     			<!-- start	top bar -->
     			<div class="top_bar">
@@ -26,20 +23,7 @@
 
     				<div class="right">
 
-    					<div class="main_btns">
-
-    					<!-- <div class="search_box">
-
-    					<div class="search_input">
-    						<i class="fas fa-search"></i>
-    						<input type="text" id="search_input" placeholder="Search" name="">
-    					</div>
-    					
-    				</div>
- -->    				
-    						<button class="search_btn oval_btn fas fa-search" onclick="show_box(this,'search_box')"></button>
-    						<button id="btn_new" class="primary_btn oval_btn fas fa-plus" onclick="modal('contact_modal','show');"></button>
-    					</div>
+    					<button class="oval_btn deselected fas fa-star" onclick="toggle_fetch_favorites(this)"></button>
     					
     				</div>
     			
@@ -47,16 +31,7 @@
     			</div>
     			<!-- end search bar -->
 
-
-    			<!-- start filter bar -->
-
-    			<div class="filter_bar">
-    				
-
-
-    			</div>
-
-    			<!-- end filter bar -->
+    			<button id="btn_new" class="primary_btn oval_btn float fas fa-plus" onclick="modal('contact_modal','show');"></button>
 
     			<!-- start table container -->
 
@@ -72,6 +47,12 @@
 
     				</table>
 
+    				<div class="empty_table">
+    					<i class="fas fa-folder-open"></i>
+    					<p>No contact found.</p>
+
+    				</div>
+
 
 
     			</div>
@@ -86,7 +67,17 @@
 
     		<!-- start info_container -->
     		<div class="info_container">
+    		
+    		<div class="info_shimers">
     			
+    			<div class="circle shimmer"></div>
+    			<div class="row shimmer"></div>
+    			<div class="row shimmer"></div>
+    			<div class="row shimmer"></div>
+    			<div class="row shimmer"></div>
+
+    		</div>
+
     		<!-- If no contact selected -->
     		<div class="empty_infos">
     			
@@ -194,8 +185,8 @@
 						 <form id="contact_form" method="POST" enctype="multipart/form-data" class="form">
 
 			            	<div class="title">
-			            		<i class="fa fa-building"></i>
-			            		<label>Informations de votre societe</label>
+			            		<label>Add new contact</label>
+			            		<span onclick="modal('contact_modal','hide');"><i class="fas fa-xmark"></i></span>
 			            	</div>
 
 			            	<div class="row">
@@ -269,6 +260,7 @@
 				          	  		<label>Whatsapp</label>
 												<input type="tel" class="form-control
 													" placeholder="ex: 79000000" id="socials_wp" name="socials_wp">
+													<span class="error_secondary" id="socials_wp"  style="color:red"></span>
 												</div>
 
 				           		</div>
