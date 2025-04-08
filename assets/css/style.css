@@ -515,7 +515,7 @@ button.secondary{
     flex-wrap: wrap;
 }
 
-.main_container .info_container .contact_infos .header .buttons button{
+.main_container .info_container .contact_infos .header .buttons a{
     border: none;
     outline: none;
     background: var(--dark_white);
@@ -523,7 +523,12 @@ button.secondary{
     width: 45px;
     height: 45px;
     border-radius: 50px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.05);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .main_container .info_container .contact_infos .subtitle{
@@ -739,6 +744,7 @@ button.secondary{
     width: 100%;
     display: flex;
     margin-top: 40px;
+    flex-direction: column;
 }
 .container .table_container table{
     width: 100%;
@@ -837,7 +843,7 @@ button.secondary{
     justify-self: flex-end;
 }
 
-.container .table_container table tbody tr td.options button{
+.container .table_container table tbody tr td.options button, .container .table_container table tbody tr td.options a{
     border: none;
     color: var(--primary);
     background: var(--milkywhite);
@@ -846,31 +852,54 @@ button.secondary{
    border: 1px solid rgba(0, 0, 0, 0.07);
    border-radius: 50%;
    transition: .15s linear;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   text-decoration: none;
 }
-.container .table_container table tbody tr td.options button:hover{
+.container .table_container table tbody tr td.options button:hover, .container .table_container table tbody tr td.options a:hover{
     background: var(--dark_white);
 }
 
-.container .table_container table tbody tr td.options button i{
+.container .table_container table tbody tr td.options button i, .container .table_container table tbody tr td.options a i{
     font-size: 12px;
 }
 
-.container .table_container table tbody tr.shimmer_row{
+.table_shimmer{
+    margin-top: 60px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.shimmer_row{
     border-bottom: none;
     justify-content: space-between;
     align-items: center;
     cursor: default;
     padding: 0px;
+    display: flex;
+    gap: 10px;
 }
 
-table tr.shimmer_row .shimmer {
+.shimmer_row .oval{
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+
+}
+
+.shimmer_row .line{
+    width: 90%;
+    border-radius: 35px;
+     height: 70px;
+}
+
+
+.shimmer {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
-    height: 60px; 
-    width: 100%;
-    border-radius: 8px;
-    margin-bottom: 5px;
 }
 
 @keyframes shimmer {

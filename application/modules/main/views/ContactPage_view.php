@@ -46,7 +46,24 @@
     					</tbody>
 
     				</table>
+    				<div class="table_shimmer">
 
+    					<div class="shimmer_row">
+    						<div class="oval shimmer"></div>
+    						<div class="line shimmer"></div>
+    					</div>
+
+    					<div class="shimmer_row">
+    						<div class="oval shimmer"></div>
+    						<div class="line shimmer"></div>
+    					</div>
+
+    					<div class="shimmer_row">
+    						<div class="oval shimmer"></div>
+    						<div class="line shimmer"></div>
+    					</div>
+
+    				</div>
     				<div class="empty_table">
     					<i class="fas fa-folder-open"></i>
     					<p>No contact found.</p>
@@ -121,9 +138,9 @@
     				</div>
 
     				<div class="buttons">
-    					<button><i class="fas fa-phone"></i></button>
-    					<button><i class="fas fa-envelope"></i></button>
-    					<button><i class="fas fa-comment"></i></button>
+    					<a id="info_call"><i class="fas fa-phone"></i></a>
+    					<a id="info_email"><i class="fas fa-envelope"></i></a>
+    					<a id="info_sms"><i class="fas fa-comment"></i></a>
     				</div>
 
     			</div>

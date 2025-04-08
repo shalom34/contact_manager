@@ -14,17 +14,31 @@ class ContactPage extends CI_Controller {
   
 
   function index(){
-
+    $this->is_saved();
     $this->load->view('ContactPage_view');
+
   }
+
+    // verify if the user data is saved locally
+
+  function is_saved()
+    {
+        if (empty($this->session->userdata('USER_ID'))) {
+            redirect(base_url(''));
+        }
+    }
 
   // inserts new contact to the database
 
   function insert_or_update_contact(){
 
+    $this->is_saved();
+
     $this->validate();
 
     try {
+
+   $user_id = $this->session->userdata('USER_ID');
 
     // As of the socials urls/numbers, all of them will be stored in a single column 'SOCIALS' as json objects for a single contact and here are there identifiers:
     // fb: facebook
@@ -66,6 +80,7 @@ class ContactPage extends CI_Controller {
 
     // store them in an array with table names as keys
     $contact_data = array(
+        'USER_ID'=>$user_id,
         'FIRST_NAME' => $first_name,
         'LAST_NAME' => $last_name,
         'DESCRIPTION' => $description,
@@ -99,6 +114,7 @@ class ContactPage extends CI_Controller {
 
   function validate(){
     
+    $this->is_saved();
     // initialization of data array to send to the front
     $data = array(
       'error_string' => array(),
@@ -185,9 +201,17 @@ class ContactPage extends CI_Controller {
 
 
 function get_contacts() {
-    $letter = $_POST['letter'] ?? 'A';
-    $contact_number = $this->Model->getRequeteOne("SELECT COUNT(CONTACT_ID) AS TOTAL FROM contacts");
 
+
+    $this->is_saved();
+
+   $user_id = $this->session->userdata('USER_ID');
+
+
+    $letter = $_POST['letter'] ?? 'A';
+    $contact_number = $this->Model->getRequeteOne("SELECT COUNT(CONTACT_ID) AS TOTAL FROM contacts WHERE USER_ID=".$user_id);
+
+    $user_cond=' AND USER_ID='.$user_id.' ';
     $add_favorite_table='';
     $add_favorite_cond='';
 
@@ -197,7 +221,7 @@ function get_contacts() {
 
     }
 
-    $returned_contacts = $this->Model->getRequeteOne("SELECT COUNT(contacts.CONTACT_ID) AS TOTAL FROM contacts".$add_favorite_table." WHERE 1 ".$add_favorite_cond);
+    $returned_contacts = $this->Model->getRequeteOne("SELECT COUNT(contacts.CONTACT_ID) AS TOTAL FROM contacts".$add_favorite_table." WHERE 1 ".$user_cond.$add_favorite_cond);
 
     // Handle special characters as a group
     if ($letter === "SPECIAL") {
@@ -206,7 +230,7 @@ function get_contacts() {
             SELECT *,contacts.CONTACT_ID AS CONTACT_ID FROM contacts"
             .$add_favorite_table. 
             " WHERE FIRST_NAME REGEXP '^[^A-Za-z]'"
-            .$add_favorite_cond.
+            .$user_cond.$add_favorite_cond.
             " ORDER BY FIRST_NAME ASC");
     } else {
         // Query for specific alphabetic letters
@@ -214,7 +238,7 @@ function get_contacts() {
             SELECT *,contacts.CONTACT_ID AS CONTACT_ID FROM contacts"
             .$add_favorite_table. 
             " WHERE FIRST_NAME LIKE '$letter%'"
-            .$add_favorite_cond.
+            .$user_cond.$add_favorite_cond.
             " ORDER BY FIRST_NAME ASC");
     }
 
@@ -250,8 +274,8 @@ function get_contacts() {
                 </div>
             </td>
             <td class="options">
-                <button><i class="fas fa-phone"></i></button>
-                <button id="fav' . $contact['CONTACT_ID'] . '" onclick="toggle_favorite(' . $contact['CONTACT_ID'] . ')"><i class="' . $favorite_star_class . ' fa-star"></i></button>
+                <a href="tel:'.$contact['PHONE'].'"><i class="fas fa-phone"></i></a>
+                <a id="fav' . $contact['CONTACT_ID'] . '" onclick="toggle_favorite(' . $contact['CONTACT_ID'] . ')"><i class="' . $favorite_star_class . ' fa-star"></i></a>
                 <button onclick="show_contact_infos(' . $contact['CONTACT_ID'] . ')"><i class="fas fa-ellipsis-h"></i></button>
             </td>
         </tr>';
@@ -374,6 +398,7 @@ foreach ($socials_data as $social) {
 
 function toggle_favorite($contact_id){
     
+    $this->is_saved();
     $favorite= $this->Model->getRequeteOne("SELECT FAVORITE_ID FROM favorites WHERE CONTACT_ID=".$contact_id);
 
     $status=false;
@@ -396,6 +421,7 @@ function toggle_favorite($contact_id){
 // uploads files to the folder
 
 function upload_document($file_name, $field_name){
+        $this->is_saved();
         $rep_doc = FCPATH . 'uploads/profiles/';
         $file_extension = pathinfo($field_name, PATHINFO_EXTENSION);
         $file_extension = strtolower($file_extension);
@@ -411,7 +437,7 @@ function upload_document($file_name, $field_name){
     }
 
 function delete_contact($id){
-
+        $this->is_saved();
      $results=$this->Model->delete('contacts', ['CONTACT_ID' => $id]);
      if ($results) {
          echo json_encode(['status'=>true]);
@@ -422,7 +448,7 @@ function delete_contact($id){
 }
 
 function validate_phone_number($phoneNumber) {
-    $pattern = "/^\+?[0-9]{10,15}$/";
+    $pattern = "/^\+?[0-9]{8,15}$/";
 
     if (preg_match($pattern, $phoneNumber)) {
         return true; 
@@ -434,9 +460,9 @@ function validate_phone_number($phoneNumber) {
 function validate_email($email) {
     $pattern = "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/";
     if (preg_match($pattern, $email)) {
-        return true; // Valid email address
+        return true; 
     }
-    return false; // Invalid email address
+    return false;
 }
 
 

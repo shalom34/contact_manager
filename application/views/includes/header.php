@@ -8,7 +8,7 @@
         <script src="<?= base_url() ?>assets/js/theme-script.js" type="d2ea1eb9a52065b6e33f27f8-text/javascript"></script>
 
         <!-- Favicon -->
-        <link rel="shortcut icon" type="image/x-icon" href="<?=base_url()?>assets/img/favicon-1.png">
+        <link rel="shortcut icon" type="image/x-icon" href="<?=base_url()?>assets/img/logo.png">
         
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="<?=base_url()?>assets/css/bootstrap.min-1.css">

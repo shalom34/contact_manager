@@ -49,7 +49,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
- $route['default_controller'] = 'main/ContactPage';
+ $route['default_controller'] = 'main/LoginPage';
+ $route['login'] = 'main/LoginPage/login';
+ $route['register'] = 'main/LoginPage/register';
+ $route['contacts'] = 'main/ContactPage';
   $route['contacts/add'] = 'main/ContactPage/insert_contact';
   $route['contacts/edit'] = 'main/ContactPage/insert_or_update_contact';
   $route['contacts/get'] = 'main/ContactPage/get_contacts';
