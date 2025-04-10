@@ -107,6 +107,14 @@ class LoginPage extends CI_Controller {
     
   }
 
+  // log out the user
+
+  function log_out() {
+           
+            $this->session->set_userdata(['USER_ID'=>NULL]);
+            echo json_encode(['status'=>true]);
+  }
+
   // save user data in session
    public function savedata($id){
       
@@ -118,7 +126,7 @@ class LoginPage extends CI_Controller {
             $this->session->set_userdata($session);
 
   
-         }
+   }
  
 }
 

@@ -129,29 +129,30 @@ class CI_Session_files_driver extends CI_Session_driver implements SessionHandle
 	 * @param	string	$name		Session cookie name
 	 * @return	bool
 	 */
-	public function open($save_path, $name)
-	{
-		if ( ! is_dir($save_path))
-		{
-			if ( ! mkdir($save_path, 0700, TRUE))
-			{
-				throw new Exception("Session: Configured save path '".$this->_config['save_path']."' is not a directory, doesn't exist or cannot be created.");
-			}
-		}
-		elseif ( ! is_writable($save_path))
-		{
-			throw new Exception("Session: Configured save path '".$this->_config['save_path']."' is not writable by the PHP process.");
-		}
+#[\ReturnTypeWillChange]
+public function open($save_path, $name)
+{
+    if ( ! is_dir($save_path))
+    {
+        if ( ! mkdir($save_path, 0700, TRUE))
+        {
+            throw new Exception("Session: Configured save path '".$this->_config['save_path']."' is not a directory, doesn't exist or cannot be created.");
+        }
+    }
+    elseif ( ! is_writable($save_path))
+    {
+        throw new Exception("Session: Configured save path '".$this->_config['save_path']."' is not writable by the PHP process.");
+    }
 
-		$this->_config['save_path'] = $save_path;
-		$this->_file_path = $this->_config['save_path'].DIRECTORY_SEPARATOR
-			.$name // we'll use the session cookie name as a prefix to avoid collisions
-			.($this->_config['match_ip'] ? md5($_SERVER['REMOTE_ADDR']) : '');
+    $this->_config['save_path'] = $save_path;
+    $this->_file_path = $this->_config['save_path'].DIRECTORY_SEPARATOR
+        .$name // we'll use the session cookie name as a prefix to avoid collisions
+        .($this->_config['match_ip'] ? md5($_SERVER['REMOTE_ADDR']) : '');
 
-		$this->php5_validate_id();
+    $this->php5_validate_id();
 
-		return $this->_success;
-	}
+    return $this->_success;
+}
 
 	// ------------------------------------------------------------------------
 
@@ -163,6 +164,7 @@ class CI_Session_files_driver extends CI_Session_driver implements SessionHandle
 	 * @param	string	$session_id	Session ID
 	 * @return	string	Serialized session data
 	 */
+	#[\ReturnTypeWillChange]
 	public function read($session_id)
 	{
 		// This might seem weird, but PHP 5.6 introduces session_reset(),
@@ -232,6 +234,8 @@ class CI_Session_files_driver extends CI_Session_driver implements SessionHandle
 	 * @param	string	$session_data	Serialized session data
 	 * @return	bool
 	 */
+
+	#[\ReturnTypeWillChange]
 	public function write($session_id, $session_data)
 	{
 		// If the two IDs don't match, we have a session_regenerate_id() call
@@ -289,18 +293,19 @@ class CI_Session_files_driver extends CI_Session_driver implements SessionHandle
 	 *
 	 * @return	bool
 	 */
-	public function close()
-	{
-		if (is_resource($this->_file_handle))
-		{
-			flock($this->_file_handle, LOCK_UN);
-			fclose($this->_file_handle);
+#[\ReturnTypeWillChange]
+public function close()
+{
+    if (is_resource($this->_file_handle))
+    {
+        flock($this->_file_handle, LOCK_UN);
+        fclose($this->_file_handle);
 
-			$this->_file_handle = $this->_file_new = $this->_session_id = NULL;
-		}
+        $this->_file_handle = $this->_file_new = $this->_session_id = NULL;
+    }
 
-		return $this->_success;
-	}
+    return $this->_success;
+}
 
 	// ------------------------------------------------------------------------
 
@@ -312,6 +317,8 @@ class CI_Session_files_driver extends CI_Session_driver implements SessionHandle
 	 * @param	string	$session_id	Session ID
 	 * @return	bool
 	 */
+
+	#[\ReturnTypeWillChange]
 	public function destroy($session_id)
 	{
 		if ($this->close() === $this->_success)
@@ -353,6 +360,8 @@ class CI_Session_files_driver extends CI_Session_driver implements SessionHandle
 	 * @param	int 	$maxlifetime	Maximum lifetime of sessions
 	 * @return	bool
 	 */
+
+	#[\ReturnTypeWillChange]
 	public function gc($maxlifetime)
 	{
 		if ( ! is_dir($this->_config['save_path']) OR ($directory = opendir($this->_config['save_path'])) === FALSE)

@@ -48,7 +48,8 @@ function send_data(btn, event) {
 function navigate_forms() {
     
 	const reg_link_btn = document.querySelector('.reg_link_btn');
-	const form = document.querySelector('form');
+    const form = document.querySelector('form');
+	const header = document.querySelector('.header');
 	const login = form.querySelector('.login');
 	const register = form.querySelector('.register');
 	const top_label = reg_link_btn.querySelector('label');
@@ -62,12 +63,16 @@ function navigate_forms() {
     input.value = "";
     });
 
+    console.log("header"+header)
+
+    let header_text='Create your account';
 	let message='Do you have an account?';
 	let btn_text='Log in';
 
 	if (login.style.display === 'none') {
 		login.style.display = 'flex';
 		register.style.display = 'none'; 
+         header_text='Login to your account';
 		 message='New here?';
 		 btn_text='Create account';
 
@@ -78,6 +83,7 @@ function navigate_forms() {
 		 message='Do you have an account?';
 		 btn_text='Log in';
 	}
+    header.textContent=header_text;
 	top_label.textContent=message;
 	btn.textContent=btn_text;
 

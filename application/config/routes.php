@@ -52,6 +52,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  $route['default_controller'] = 'main/LoginPage';
  $route['login'] = 'main/LoginPage/login';
  $route['register'] = 'main/LoginPage/register';
+ $route['logout'] = 'main/LoginPage/log_out';
  $route['contacts'] = 'main/ContactPage';
   $route['contacts/add'] = 'main/ContactPage/insert_contact';
   $route['contacts/edit'] = 'main/ContactPage/insert_or_update_contact';

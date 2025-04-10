@@ -680,6 +680,38 @@ function toggle_fetch_favorites(btn) {
     refresh();
 }
 
+// log out user
+
+function log_out(btn){
+    
+
+    const url = baseUrl+"logout";
+    btn.disabled = true;
+
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: {},
+        contentType: false,
+        processData: false,
+        dataType: "JSON",
+        success: function (data) {
+        setTimeout(function () {
+            window.location.replace(baseUrl);
+        },500) 
+
+          
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            btn.disabled = false;
+        show_toast('Error',"An error has occured. Try again please.", 'error');
+
+        }
+    });
+
+
+}
+
 // verifies if a string doesn't start with a letter
 
 function starts_with_non_etter(str) {

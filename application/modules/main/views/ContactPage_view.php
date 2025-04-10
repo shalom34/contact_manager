@@ -22,8 +22,8 @@
     				<h3 class="title"><span id="total_number"></span>Contacts</h3>
 
     				<div class="right">
-
     					<button class="oval_btn deselected fas fa-star" onclick="toggle_fetch_favorites(this)"></button>
+    					<button class="oval_btn deselected fas fa-sign-out" onclick="log_out(this)"></button>
     					
     				</div>
     			
@@ -126,12 +126,13 @@
     					<div class="names">
     						<div class="top">
     						<h6 id="fullname">Full name </h6>
-	    					<div class="right">
-	    					<button class="oval_btn" id="edit_btn" onclick="open_edit_modal(this)" contact-data=""><i class="fas fa-pencil"></i></button>
-	    					</div>	
-    						</div>
-    						
     						<label id="description">Description here</label>
+    						</div>
+
+    						<div class="right">
+	    					<button class="oval_btn" id="edit_btn" onclick="open_edit_modal(this)" contact-data=""><i class="fas fa-pencil"></i></button>
+	    					</div>
+    						
     					</div>
 
 

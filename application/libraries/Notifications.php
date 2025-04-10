@@ -14,71 +14,61 @@ class Notifications
       $this->CI->load->model('Model');
   }
 
-    function send_mail($emailTo = array(), $subjet, $cc_emails = array(), $message, $attach = array()) {
+  function send_mail($subjet, $message, $emailTo = array(), $cc_emails = array(), $attach = array()) {
 
-        $config['protocol'] = 'smtp';
-        $config['smtp_host'] = 'ssl://mamba.afriregister.com';
-        $config['smtp_port'] = 465;
-      // $config['smtp_port'] = 587;
-        //$config['smtp_user'] = 'cousp@cousp-minisante.gov.bi';
-        $config['smtp_user'] = 'unwomen@mediabox.bi';
-        $config['smtp_pass'] = 'Mediabox@2025';
-        //$config['smtp_pass'] = '&(E%aHA)1m93';  
-        $config['mailtype'] = 'html';
-        $config['charset'] = 'UTF-8';
-        $config['wordwrap'] = TRUE;
-        $config['smtp_timeout'] = 20;
-        $config['newline'] = "\r\n";
-        $this->CI->email->initialize($config);
-        $this->CI->email->set_mailtype("html");
-        $this->CI->email->from('noc@mediabox.bi', 'UNwomen');
-        $this->CI->email->to($emailTo);
-        $this->CI->email->cc($cc_emails);
-        /*if (!empty($cc_emails)) {
-            foreach ($cc_emails as $key => $value) { 
-                $this->CI->email->cc($value);
-            }
-        }*/
-        $this->CI->email->subject($subjet);
-        $this->CI->email->message($message);
+    $config['protocol'] = 'smtp';
+    $config['smtp_host'] = 'ssl://mamba.afriregister.com';
+    $config['smtp_port'] = 465;
+    $config['smtp_user'] = 'unwomen@mediabox.bi';
+    $config['smtp_pass'] = 'Mediabox@2025';
+    $config['mailtype'] = 'html';
+    $config['charset'] = 'UTF-8';
+    $config['wordwrap'] = TRUE;
+    $config['smtp_timeout'] = 20;
+    $config['newline'] = "\r\n";
 
-        if (!empty($attach)) {
-            foreach ($attach as $att)
+    $this->CI->email->initialize($config);
+    $this->CI->email->set_mailtype("html");
+    $this->CI->email->from('noc@mediabox.bi', 'UNwomen');
+    $this->CI->email->to($emailTo);
+    $this->CI->email->cc($cc_emails);
+    $this->CI->email->subject($subjet);
+    $this->CI->email->message($message);
+
+    if (!empty($attach)) {
+        foreach ($attach as $att) {
             $this->CI->email->attach($att);
         }
-        if (!$this->CI->email->send())
-         {
-          return 0;
-            //show_error($this->CI->email->print_debugger());
-         } 
-        else
-          {
-         return 1;
-          }
-      //echo $this->CI->email->print_debugger();
     }
 
+    if (!$this->CI->email->send()) {
+        return 0; 
+    } else {
+        return 1;
+    }
+}
 
 
-   public function send_sms($string_tel = NULL,$string_msg)
-   {
-        $data = '{"urns": ["' . $string_tel . '"],"text":"' . $string_msg . '"}';
 
-        $header = array();
-        $header [0] = 'Authorization:Token 8ae3e567ec75aeac4fab42a43c64edf52f0eb736';  //pas d'espace entre Authori et : et Token
-        $header [1] = 'Content-Type:application/json';
-        $curl = curl_init();
+  public function send_sms($string_msg, $string_tel = NULL)
+{
+    $data = '{"urns": ["' . $string_tel . '"],"text":"' . $string_msg . '"}';
 
-        curl_setopt($curl, CURLOPT_URL, 'https://sms.ubuviz.com/api/v2/broadcasts.json');
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-        $result = curl_exec($curl);
-       // $result = json_decode($result);
+    $header = array();
+    $header[0] = 'Authorization:Token 8ae3e567ec75aeac4fab42a43c64edf52f0eb736';  // pas d'espace entre Authori et : et Token
+    $header[1] = 'Content-Type:application/json';
+    $curl = curl_init();
 
-        return $result;
-   }
+    curl_setopt($curl, CURLOPT_URL, 'https://sms.ubuviz.com/api/v2/broadcasts.json');
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+    $result = curl_exec($curl);
+    // $result = json_decode($result);
+
+    return $result;
+}
 
 
    public function generate_UIID($taille)
